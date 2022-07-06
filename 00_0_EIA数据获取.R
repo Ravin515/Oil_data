@@ -126,10 +126,20 @@ refiner_utilization_weekly <- refiner_utilization_weekly[, rbindlist(list(eia_ca
 refiner_utilization_weekly <- refiner_utilization_weekly[, rbindlist(eia_series(series_id)[['data']]), by = .(area, name, f, units, updated)]
 sv(refiner_utilization_weekly, svname = "refiner_utilization_weekly")
 
+# 2.1.5 美国炼厂分区产能（年度）
+refiner_capacity <- eia_cats(304740)$childcategories %>% as.data.table()
+refiner_capacity_annual <- refiner_capacity[, rbindlist(eia_cats(category_id)$childseries %>% list()), by = .(category_id, area = name)]
+refiner_capacity_annual <- refiner_capacity_annual[, rbindlist(eia_series(series_id)[["data"]]), by = .(area, name, f, units, updated)]
+sv(refiner_capacity_annual, svname = refiner_capacity_annual)
+
+# 2.1.6 美国炼厂利用率与产量
+refiner_utilization_capacity <- eia_cats(303762)$childcategories %>% as.data.table() # 按区域导出
+refiner_utilization_capacity <- refiner_utilization_capacity[, eia_cats(category_id)$childseries %>% list() %>% rbindlist(), by = .(area = name)]
+# 按月度导出
+refiner_utilization_capacity_monthly <- refiner_utilization_capacity[f == "M", eia_series(series_id)[["data"]] %>% rbindlist(), by = .(area, name, f, units, updated)]
+sv(refiner_utilization_capacity_monthly, svname = refiner_utilization_capacity_monthly)
 
 # 3. 原油保存和产量 ----
-eia_cats(714758)
-
 
 # 4. 进出口及流动 ----
 eia_cats(714760)
