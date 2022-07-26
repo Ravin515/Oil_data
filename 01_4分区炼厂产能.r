@@ -35,6 +35,11 @@ refiner_gasoline_PADD3_yield <- refiner_yield[str_detect(name, "PADD|U.S.|Texas 
     ]
 fwrite(refiner_gasoline_PADD3_yield, "refiner_gasoline_PADD3_yield.csv")
 
-# 分区炼厂原油处理能力
+# PADD3中炼厂原油处理能力
 ld(refiner_utilization_capacity_monthly)
-refiner_utilization_capacity_monthly[str_detect(name, "PADD|U.S.|Texas Inland|Texas Gulf Coast|Louisiana Gulf Coast|North Louisiana-Arkansas|New Mexico")]
+refiner_utilization_capacity_PADD3_monthly <- refiner_utilization_capacity_monthly[str_detect(name, "PADD 3|U.S.|Texas|Louisiana Gulf Coast|North Louisiana-Arkansas|New Mexico")&str_detect(name, "Gross"), .SD
+    ][, area := fcase(str_detect(name, "Texas Inland"), "德州内陆", str_detect(name, "Texas Gulf Coast"), "德州湾区", str_detect(name, "3"), "PADD 3", str_detect(name, "Louisiana Gulf Coast"), "路易斯安纳州湾区", str_detect(name, "North Louisiana-Arkansas"), "北路易斯安纳-阿肯色",  str_detect(name, "New Mexico"), "新墨西哥州",default = "U.S.")
+    ][year %in% 2020:2022, .(value = mean(value, na.rm = T)), by = .(year, area)
+    ][, dcast(.SD, area ~ year, value.var = "value")
+    ]
+fwrite(refiner_utilization_capacity_PADD3_monthly, "refiner_utilization_capacity_PADD3_monthly.csv")
