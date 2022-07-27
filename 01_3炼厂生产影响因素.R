@@ -312,6 +312,163 @@ ggplot(refiner_yield_us[year > 2011, .SD],
 
   ggsave("美国炼厂收率.tiff", device = "tiff", dpi = 300, width = 7, height = 4)
 
+# 美国各地区及全美汽油收率
+# 全美
+ggplot(refiner_yield[year > 2011 & str_detect(name, "Finished Motor Gasoline") & str_detect(name, "U.S."), .SD
+  ][, ':='(y_max = max(value[year <= max(year-1) & year >= max(year - 5)]), y_min = min(value[year <= max(year-1) & year >= max(year - 5)])), by = .(month)
+  # ][, week := format(date, format = "%b-%d")
+  ][year >= max(year) - 3, .SD
+  ][, year := as.factor(year)]) +
+  geom_line(size = 1, aes(x = month, y = value, colour = year)) +
+  geom_ribbon(aes(x = month, ymin = y_min, ymax = y_max, fill = "5 Year Range"), alpha = 0.3) + 
+  theme_grey() +
+  labs(x = "时间", y = "%", title = "炼厂汽油收率-全美") +
+  # scale_x_date(date_breaks = "1 month", date_labels = "%b") +
+  theme(
+    plot.title =  element_text(size = rel(1.3), hjust = 0.5),
+    axis.line = element_line(linetype = 1),
+    legend.title = element_blank(),
+    #panel.border = element_rect(linetype = 1, fill = NA),
+    legend.position = "bottom",
+    legend.spacing.x = unit(0.1, 'cm'),
+    legend.spacing.y = unit(2, 'cm'),
+    # legend.box = "horizontal",
+    # legend.box.background = element_rect(size = 1, colour = "black", fill = "white"),
+    legend.key = element_rect(size = 0.5, colour = "black", fill = "white"),
+    legend.key.size = unit(0.5, 'cm')
+  )
+  ggsave("炼厂汽油收率——全美.tiff", device = "tiff", dpi = 1000, width = 6, height = 4)
+
+# PADD1汽油收率
+ggplot(refiner_yield[year > 2011 & str_detect(name, "Finished Motor Gasoline") & str_detect(name, "PADD 1"), .SD
+  ][, ':='(y_max = max(value[year <= max(year-1) & year >= max(year - 5)]), y_min = min(value[year <= max(year-1) & year >= max(year - 5)])), by = .(month)
+  # ][, week := format(date, format = "%b-%d")
+  ][year >= max(year) - 3, .SD
+  ][, year := as.factor(year)]) +
+  geom_line(size = 1, aes(x = month, y = value, colour = year)) +
+  geom_ribbon(aes(x = month, ymin = y_min, ymax = y_max, fill = "5 Year Range"), alpha = 0.3) + 
+  theme_grey() +
+  labs(x = "时间", y = "%", title = "炼厂汽油收率-PADD1") +
+  # scale_x_date(date_breaks = "1 month", date_labels = "%b") +
+  theme(
+    plot.title =  element_text(size = rel(1.3), hjust = 0.5),
+    axis.line = element_line(linetype = 1),
+    legend.title = element_blank(),
+    #panel.border = element_rect(linetype = 1, fill = NA),
+    legend.position = "bottom",
+    legend.spacing.x = unit(0.1, 'cm'),
+    legend.spacing.y = unit(2, 'cm'),
+    # legend.box = "horizontal",
+    # legend.box.background = element_rect(size = 1, colour = "black", fill = "white"),
+    legend.key = element_rect(size = 0.5, colour = "black", fill = "white"),
+    legend.key.size = unit(0.5, 'cm')
+  )
+  ggsave("炼厂汽油收率——PADD1.tiff", device = "tiff", dpi = 1000, width = 6, height = 4)
+
+# PADD2汽油收率
+ggplot(refiner_yield[year > 2011 & str_detect(name, "Finished Motor Gasoline") & str_detect(name, "PADD 2"), .SD
+  ][, ':='(y_max = max(value[year <= max(year-1) & year >= max(year - 5)]), y_min = min(value[year <= max(year-1) & year >= max(year - 5)])), by = .(month)
+  # ][, week := format(date, format = "%b-%d")
+  ][year >= max(year) - 3, .SD
+  ][, year := as.factor(year)]) +
+  geom_line(size = 1, aes(x = month, y = value, colour = year)) +
+  geom_ribbon(aes(x = month, ymin = y_min, ymax = y_max, fill = "5 Year Range"), alpha = 0.3) + 
+  theme_grey() +
+  labs(x = "时间", y = "%", title = "炼厂汽油收率-PADD2") +
+  # scale_x_date(date_breaks = "1 month", date_labels = "%b") +
+  theme(
+    plot.title =  element_text(size = rel(1.3), hjust = 0.5),
+    axis.line = element_line(linetype = 1),
+    legend.title = element_blank(),
+    #panel.border = element_rect(linetype = 1, fill = NA),
+    legend.position = "bottom",
+    legend.spacing.x = unit(0.1, 'cm'),
+    legend.spacing.y = unit(2, 'cm'),
+    # legend.box = "horizontal",
+    # legend.box.background = element_rect(size = 1, colour = "black", fill = "white"),
+    legend.key = element_rect(size = 0.5, colour = "black", fill = "white"),
+    legend.key.size = unit(0.5, 'cm')
+  )
+  ggsave("炼厂汽油收率——PADD2.tiff", device = "tiff", dpi = 1000, width = 6, height = 4)
+
+  # PADD3汽油收率
+ggplot(refiner_yield[year > 2011 & str_detect(name, "Finished Motor Gasoline") & str_detect(name, "PADD 3"), .SD
+  ][, ':='(y_max = max(value[year <= max(year-1) & year >= max(year - 5)]), y_min = min(value[year <= max(year-1) & year >= max(year - 5)])), by = .(month)
+  # ][, week := format(date, format = "%b-%d")
+  ][year >= max(year) - 3, .SD
+  ][, year := as.factor(year)]) +
+  geom_line(size = 1, aes(x = month, y = value, colour = year)) +
+  geom_ribbon(aes(x = month, ymin = y_min, ymax = y_max, fill = "5 Year Range"), alpha = 0.3) + 
+  theme_grey() +
+  labs(x = "时间", y = "%", title = "炼厂汽油收率-PADD3") +
+  # scale_x_date(date_breaks = "1 month", date_labels = "%b") +
+  theme(
+    plot.title =  element_text(size = rel(1.3), hjust = 0.5),
+    axis.line = element_line(linetype = 1),
+    legend.title = element_blank(),
+    #panel.border = element_rect(linetype = 1, fill = NA),
+    legend.position = "bottom",
+    legend.spacing.x = unit(0.1, 'cm'),
+    legend.spacing.y = unit(2, 'cm'),
+    # legend.box = "horizontal",
+    # legend.box.background = element_rect(size = 1, colour = "black", fill = "white"),
+    legend.key = element_rect(size = 0.5, colour = "black", fill = "white"),
+    legend.key.size = unit(0.5, 'cm')
+  )
+  ggsave("炼厂汽油收率——PADD3.tiff", device = "tiff", dpi = 1000, width = 6, height = 4)
+
+# PADD4汽油收率
+ggplot(refiner_yield[year > 2011 & str_detect(name, "Finished Motor Gasoline") & str_detect(name, "PADD 4"), .SD
+  ][, ':='(y_max = max(value[year <= max(year-1) & year >= max(year - 5)]), y_min = min(value[year <= max(year-1) & year >= max(year - 5)])), by = .(month)
+  # ][, week := format(date, format = "%b-%d")
+  ][year >= max(year) - 3, .SD
+  ][, year := as.factor(year)]) +
+  geom_line(size = 1, aes(x = month, y = value, colour = year)) +
+  geom_ribbon(aes(x = month, ymin = y_min, ymax = y_max, fill = "5 Year Range"), alpha = 0.3) + 
+  theme_grey() +
+  labs(x = "时间", y = "%", title = "炼厂汽油收率-PADD4") +
+  # scale_x_date(date_breaks = "1 month", date_labels = "%b") +
+  theme(
+    plot.title =  element_text(size = rel(1.3), hjust = 0.5),
+    axis.line = element_line(linetype = 1),
+    legend.title = element_blank(),
+    #panel.border = element_rect(linetype = 1, fill = NA),
+    legend.position = "bottom",
+    legend.spacing.x = unit(0.1, 'cm'),
+    legend.spacing.y = unit(2, 'cm'),
+    # legend.box = "horizontal",
+    # legend.box.background = element_rect(size = 1, colour = "black", fill = "white"),
+    legend.key = element_rect(size = 0.5, colour = "black", fill = "white"),
+    legend.key.size = unit(0.5, 'cm')
+  )
+  ggsave("炼厂汽油收率——PADD4.tiff", device = "tiff", dpi = 1000, width = 6, height = 4)
+
+  # PADD5汽油收率
+ggplot(refiner_yield[year > 2011 & str_detect(name, "Finished Motor Gasoline") & str_detect(name, "PADD 5"), .SD
+  ][, ':='(y_max = max(value[year <= max(year-1) & year >= max(year - 5)]), y_min = min(value[year <= max(year-1) & year >= max(year - 5)])), by = .(month)
+  # ][, week := format(date, format = "%b-%d")
+  ][year >= max(year) - 3, .SD
+  ][, year := as.factor(year)]) +
+  geom_line(size = 1, aes(x = month, y = value, colour = year)) +
+  geom_ribbon(aes(x = month, ymin = y_min, ymax = y_max, fill = "5 Year Range"), alpha = 0.3) + 
+  theme_grey() +
+  labs(x = "时间", y = "%", title = "炼厂汽油收率-PADD5") +
+  # scale_x_date(date_breaks = "1 month", date_labels = "%b") +
+  theme(
+    plot.title =  element_text(size = rel(1.3), hjust = 0.5),
+    axis.line = element_line(linetype = 1),
+    legend.title = element_blank(),
+    #panel.border = element_rect(linetype = 1, fill = NA),
+    legend.position = "bottom",
+    legend.spacing.x = unit(0.1, 'cm'),
+    legend.spacing.y = unit(2, 'cm'),
+    # legend.box = "horizontal",
+    # legend.box.background = element_rect(size = 1, colour = "black", fill = "white"),
+    legend.key = element_rect(size = 0.5, colour = "black", fill = "white"),
+    legend.key.size = unit(0.5, 'cm')
+  )
+  ggsave("炼厂汽油收率——PADD5.tiff", device = "tiff", dpi = 1000, width = 6, height = 4)
+
   # 美国炼厂开工
 ld(refiner_utilization_weekly, force = T)
 refiner_utilization_weekly <- refiner_utilization_weekly[str_detect(name, "Utilization") & f == "W", unique(.SD)]

@@ -41,12 +41,12 @@ oil_price_retail_by_area <- oil_price_retail_by_area[, rbindlist(list(eia_cats(c
 
 ## 无论以地区或者产品导出，结果都是一样的
 
-## 1.2 美国各地炼厂汽油产出价格
-eia_cats(241528) # 美国炼厂价格 Refiner Gasoline Prices by Sale Type
-refiner_gasoline_price <- eia_cats(241529)$childcategories %>% as.data.table() 
-refiner_gasoline_price <- refiner_gasoline_price[, rbindlist(list(eia_cats(category_id)$childseries)), by = .(area = name)]
-refiner_gasoline_price_monthly <- refiner_gasoline_price[f == "M", rbindlist(eia_series(series_id)[['data']]), by = .(area, name, f, units, updated)]
-sv(refiner_gasoline_price_monthly, svname = "refiner_gasoline_price_monthly")
+# ## 1.2 美国各地炼厂油类产品产出价格
+# eia_cats(241528) # 美国炼厂价格 Refiner Gasoline Prices by Sale Type
+# refiner_gasoline_price <- eia_cats(241529)$childcategories %>% as.data.table() 
+# refiner_gasoline_price <- refiner_gasoline_price[, rbindlist(list(eia_cats(category_id)$childseries)), by = .(area = name)]
+# refiner_gasoline_price_monthly <- refiner_gasoline_price[f == "M", rbindlist(eia_series(series_id)[['data']]), by = .(area, name, f, units, updated)]
+# sv(refiner_gasoline_price_monthly, svname = "refiner_gasoline_price_monthly")
 
 ## 1.3 炼厂获得的原油成本
 eia_cats(293660) # Refiner Acquisitiaon Cost of Crude Oil
@@ -60,10 +60,10 @@ NYMEX_future_price <- eia_cats(241347)$childseries %>% as.data.table()
 NYMEX_future_price_daily <- NYMEX_future_price[f == "D", rbindlist(eia_series(series_id)[['data']]), by = .(name, f, units, updated)] # 日度数据
 sv(NYMEX_future_price_daily, svname = "NYMEX_future_price_daily")
 
-## 1.5 美国炼厂各类产品价格(除汽油)
+## 1.5 美国炼厂各类产品价格
 eia_cats(243458) # Refiner Petroleum Product Prices by Sales Type
-refiner_petroleum_price <- eia_cats(244316)$childcategories %>% as.data.table() # 按售卖形式导出
-refiner_petroleum_price <- refiner_petroleum_price[!str_detect(name, "Motor Gasoline"), rbindlist(list(eia_cats(category_id)$childseries)), by = .(sale_type = name)] # 除去汽油数据
+refiner_petroleum_price <- eia_cats(243459)$childcategories %>% as.data.table() # 按地区形式导出
+refiner_petroleum_price <- refiner_petroleum_price[, rbindlist(list(eia_cats(category_id)$childseries)), by = .(area = name)] # 除去汽油数据
 
 refiner_petroleum_price_monthly <- refiner_petroleum_price[f == "M", rbindlist(eia_series(series_id)[['data']]), by = .(sale_type, name, f, units, updated)] # 月度数据导出
 
@@ -78,8 +78,8 @@ eia_cats(296961) # 炼厂与贸易商周度总净产量
 
 # 2.0 炼厂与调油商总净产量（周度）
 net_production_weekly <- eia_cats(296962)$childcategories %>% as.data.table() # 根据地区展开
-net_production_weekly <- net_production[, rbindlist(eia_cats(category_id)$childseries %>% list()), by = .(area = name)]
-net_production_weekly <- net_production[, rbindlist(eia_series(series_id)[['data']]), by = .(area, name, f, units, updated)]
+net_production_weekly <- net_production_weekly[, rbindlist(eia_cats(category_id)$childseries %>% list()), by = .(area = name)]
+net_production_weekly <- net_production_weekly[, rbindlist(eia_series(series_id)[['data']]), by = .(area, name, f, units, updated)]
 sv(net_production_weekly, svname = "net_production_weekly")
 
 # 2.1 炼厂（refiner）周度净产量
@@ -139,6 +139,12 @@ refiner_utilization_capacity <- refiner_utilization_capacity[, eia_cats(category
 refiner_utilization_capacity_monthly <- refiner_utilization_capacity[f == "M", eia_series(series_id)[["data"]] %>% rbindlist(), by = .(area, name, f, units, updated)]
 sv(refiner_utilization_capacity_monthly, svname = refiner_utilization_capacity_monthly)
 
+# 2.1.7 原油进料含硫量及API值
+refiner_input_crude_value <- eia_cats(303946)$childcategories %>% as.data.table()
+refiner_input_crude_value <- refiner_input_crude_value[, eia_cats(category_id)$childseries %>% list() %>% rbindlist(), by = .(area = name)]
+refiner_input_crude_value_monthly <- refiner_input_crude_value[f == "M", eia_series(series_id)[["data"]]%>% rbindlist(), by = .(area, name, units, updated)]
+sv(refiner_input_crude_value_monthly, svname = refiner_input_crude_value_monthly)
+
 # 3. 原油保存和产量 ----
 
 # 4. 进出口及流动 ----
@@ -165,6 +171,12 @@ district_import_gasoline_components <- eia_cats(381365)$childcategories %>% as.d
 district_import_gasoline_components <- district_import_gasoline_components[, rbindlist(list(eia_cats(category_id)$childseries)), by = .(area = name)]
 district_import_gasoline_components <- district_import_gasoline_components[f=="M", rbindlist(eia_series(series_id)[['data']]), by = .(area, name, f, units, updated)]
 sv(district_import_gasoline_components, svname = district_import_gasoline_components)
+
+# 4.1.3 各州油品相互运输量----
+transport_between_padd <- eia_cats(330523)$childcategories %>% as.data.table()
+transport_between_padd <- transport_between_padd[, eia_cats(category_id)$childseries %>% list() %>% rbindlist(), by = .(area = name)]
+transport_between_padd_monthly <- transport_between_padd[f == "M", eia_series(series_id)[['data']] %>% rbindlist(), by = .(area, name, f, units, updated)]
+sv(transport_between_padd_monthly, svname = transport_between_padd_monthly)
 
 # 5. 各类油品库存 ----
 ## 5.1 汽油库存
