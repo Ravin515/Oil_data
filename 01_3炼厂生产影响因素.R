@@ -581,7 +581,7 @@ ggplot(refiner_utilization_weekly[year > 2011 & str_detect(area, "PADD 4"), .SD
   theme_grey() +
   labs(x = "时间", y = "%", title = "炼厂开工率-PADD4(占全美总炼油能力4%)") +
   theme(
-    plot.title =  element_text(size = rel(1.3), hjust = 0.5),
+    plot.title = element_text(size = rel(1.3), hjust = 0.5),
     axis.line = element_line(linetype = 1),
     legend.title = element_blank(),
     #panel.border = element_rect(linetype = 1, fill = NA),
@@ -618,3 +618,22 @@ ggplot(refiner_utilization_weekly[year > 2011 & str_detect(area, "PADD 5"), .SD
     legend.key.size = unit(0.5, 'cm')
   )
   ggsave("炼厂开工率——PADD5.tiff", device = "tiff", dpi = 1000, width = 6, height = 4)
+
+  # 收率与API的分布(汽油+航煤)
+  ld(refiner_yield)
+  ld(refiner_input_crude_value_monthly)
+  refiner_yield_gj <- refiner_yield[str_detect(name, "PADD") & str_detect(name, "Finished Motor Gasoline|Jet"), .SD
+  ][, area := str_extract(name, "\\(.+\\)")
+  ][, area := str_replace_all(area, "\\(|\\)", "")
+  ][, yield := sum(value), by = .(area, date)
+  ][, .(area, type = "yield", date, value = yield, units)
+  ][, unique(.SD)]
+
+  refiner_crude_api <- refiner_input_crude_value_monthly[str_detect(name, "PADD") & str_detect(name, "API"), .SD
+  ][, type := "API"
+  ][, .(area, type, date, value, units)]
+
+refiner_yield_api <- list(refiner_yield_gj, refiner_crude_api) %>% rbindlist() %>% dcast(area + type ~ date, var.value = "value")
+
+writexl::write_xlsx(refiner_yield_api, "refiner_yield_api.xlsx")
+

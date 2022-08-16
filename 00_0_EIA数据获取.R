@@ -1,6 +1,5 @@
 library(styleer)
 library(eia)
-eia_set_key("BBUpoBxsPxnPe9A3dlLW44S6aLDfNuN7dvK0HgBW")
 
 eia_cats(714755) #汽油数据
 
@@ -172,11 +171,26 @@ district_import_gasoline_components <- district_import_gasoline_components[, rbi
 district_import_gasoline_components <- district_import_gasoline_components[f=="M", rbindlist(eia_series(series_id)[['data']]), by = .(area, name, f, units, updated)]
 sv(district_import_gasoline_components, svname = district_import_gasoline_components)
 
-# 4.1.3 各州油品相互运输量----
+# 4.1.3 各州油品相互运输量（总体）----
 transport_between_padd <- eia_cats(330523)$childcategories %>% as.data.table()
 transport_between_padd <- transport_between_padd[, eia_cats(category_id)$childseries %>% list() %>% rbindlist(), by = .(area = name)]
 transport_between_padd_monthly <- transport_between_padd[f == "M", eia_series(series_id)[['data']] %>% rbindlist(), by = .(area, name, f, units, updated)]
 sv(transport_between_padd_monthly, svname = transport_between_padd_monthly)
+
+# 4.1.4 各区域油品相互运输量（管道）----
+transport_between_padd_pipeline <- eia_cats(331438)$childcategories %>% as.data.table()
+transport_between_padd_pipeline <- transport_between_padd_pipeline[, eia_cats(category_id)$childseries %>% list() %>% rbindlist(), by = .(area = name)]
+transport_between_padd_pipeline_monthly <- transport_between_padd_pipeline[f == "M", eia_series(series_id)[['data']] %>% rbindlist(), by = .(area, name, f, units, updated)]
+sv(transport_between_padd_pipeline_monthly, svname = transport_between_padd_pipeline_monthly)
+
+# 4.1.5 各区域油品相互运输量（Tank和Barge）----
+transport_between_padd_tank_barge <- eia_cats(332010)$childcategories %>% as.data.table()
+transport_between_padd_tank_barge <- transport_between_padd_tank_barge[, eia_cats(category_id)$childseries %>% list() %>% rbindlist(), by = .(area = name)]
+transport_between_padd_tank_barge_monthly <- transport_between_padd_tank_barge[f == "M", eia_series(series_id)[['data']] %>% rbindlist(), by = .(area, name, f, units, updated)]
+sv(transport_between_padd_tank_barge_monthly, svname = transport_between_padd_tank_barge_monthly)
+
+
+
 
 # 5. 各类油品库存 ----
 ## 5.1 汽油库存
@@ -194,12 +208,13 @@ gasoline_sales_weekly <- eia_cats(401676)$childseries %>% as.data.table()
 gasoline_sales_weekly <- gasoline_sales_weekly[, rbindlist(eia_series(series_id)[['data']]), by = .(name, f)]
 sv(gasoline_sales_weekly, svname = "gasoline_sales_weekly")
 
-# 6.2 主要油品销售量
-eia_cats(402211) # 油品销售量
-gasoline_sales <- eia_cats(402212)$childcategories %>% as.data.table()
-gasoline_sales <- gasoline_sales[, rbindlist(list(eia_cats(category_id)$childseries)), by = .(area = name)]
-gasoline_sales <- gasoline_sales[str_detect(area, "U.S.|East Coast|Midwest|Rocky Mountain|Gulf Coast|West Coast") & f == "M", rbindlist(eia_series(series_id)[["data"]]), by = .(area, name, f, units, updated)] #月度
-sv(gasoline_sales, svname = gasoline_sales)
+# 6.2.2 主要油品销售量
+eia_cats(402211) # 油品销售量（月度）
+gasoline_sales_monthly <- eia_cats(402212)$childcategories %>% as.data.table()
+gasoline_sales_monthly <- gasoline_sales_monthly[, rbindlist(list(eia_cats(category_id)$childseries)), by = .(area = name)]
+gasoline_sales_monthly <- gasoline_sales_monthly[str_detect(area, "U.S.|East Coast|Midwest|Rocky Mountain|Gulf Coast|West Coast") & f == "M", rbindlist(eia_series(series_id)[["data"]]), by = .(area, name, f, units, updated)] #月度
+sv(gasoline_sales_monthly, svname = gasoline_sales_monthly)
+
 
 # # 6.1.1 炼厂汽油销售量按产品分类
 # eia_cats(413349)# 炼厂汽油销售量按产品分类

@@ -1,8 +1,8 @@
 library(styleer)
 library(ggalt)
-ld(export_import)
-# 导出Finished motor gasoline
-gasoline_export_import <- export_import[str_detect(type, "Finished Motor Gasoline"), .SD
+ld(export_import_weekly)
+# Finished Motor Gasoline
+gasoline_export_import <- export_import_weekly[str_detect(type, "Finished Motor Gasoline"), .SD
   ][, category := str_extract(name, "\\of(.+)\\,")
   ][, category := str_replace_all(category, "of", "")
   ][, category := str_replace_all(category, ",", " ")

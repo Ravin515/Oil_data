@@ -65,6 +65,8 @@ refiner_gdj_fit <- refiner_gdj_fit[, ':='(g_d_price = gasoline_price - distillat
 refiner_gdj_fit[is.infinite(g_d_price_month_lag1)] <- NA
 refiner_gdj_fit[is.infinite(g_k_price_month_lag1)] <- NA
 
+refiner_gdj_fit[area == 'U.S.', lm(log(gasoline_yield) ~ shift(log(gasoline_price)) + shift(log(distillate_yield)))] %>% summary()
+
 # 一阶滞后
 # fit1_lag1 <- refiner_gdj_fit[area != "U.S.",  .(lm(gasoline_yield ~ api_lag1 + g_d_price_lag1 + g_k_price_lag1 + factor(area) + factor(month) )%>% coef() %>% as.list() %>% as.data.table(), area, date, month, year, gasoline_yield, api_lag1, g_d_price_lag1, g_k_price_lag1)] 
 
