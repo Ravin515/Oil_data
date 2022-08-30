@@ -1,8 +1,10 @@
 library(styleer)
-library(rmarkdown)
 library(gt)
 library(webshot2)
 library(dplyr)
+library(patchwork)
+library(gtsummary)
+library(bstfun)
 
 # 1.周度变化表
 eia_updated <- fread("https://ir.eia.gov/wpsr/table9.csv")
@@ -85,17 +87,19 @@ pal <- function(x) {
         x == 0, f_zero(x))
 }
 
-eia_updated_tab_weekly %>% 
+tab <- eia_updated_tab_weekly %>% 
   group_by(sub_title) %>%
   gt() %>% 
   tab_options(
     column_labels.font.size = 18,
-    column_labels.font.weight = "bold",
-    
-  ) %>%
-  data_color(columns = `变化`,
-    colors = pal
-    ) %>% gtsave("tab_1.png", expand = 30)         
+    column_labels.font.weight = "bold",) %>% 
+    data_color(columns = `变化`,
+    colors = pal) %>% 
+    tab_footnote("数据来源：EIA，浙商期货研究中心油品组") %>%
+    as_ggplot()
+
+# ggsave(plot = tab, "tab.jpg", device = "jpg")
+    # gtsave("./pic/tab.png", expand = 30)         
 
 # 2. 25张季节性图
 # U.S. Ending Stocks excluding SPR of Crude Oil, Weekly 为商业原油库存
@@ -164,33 +168,41 @@ eia_updated_pic_weekly <- eia_updated_pic_weekly[, .SD[1], keyby = .(name, date)
 # 批量画图
 eia_pic_weekly <- eia_updated_pic_weekly[, ':='(y_max = max(value[year <= max(year-1) & year >= max(year - 5)]), y_min = min(value[year <= max(year-1) & year >= max(year - 5)])), by = .(week, name)
   # ][, week := format(date, format = "%b-%d")
+    ][, sub_title := fcase(
+      str_detect(name, "汽油"), "汽油",
+      str_detect(name, "柴油"), "柴油",
+      str_detect(name, "航煤"), "航煤",
+      str_detect(name, "燃料油"), "燃料油",
+      default = "原油"
+    ) 
     ][year >= max(year) - 4, .SD
     ][, year := as.factor(year)
     ][, .(pic = (ggplot(.SD) +
           geom_line(size = 1, aes(x = week, y = value, colour = year)) +
           geom_ribbon(aes(x = week, ymin = y_min, ymax = y_max, fill = "5 Year Range"), alpha = 0.3) + 
           theme_grey() +
-          labs(x = "周数", title = unique(name)) +
+          labs(x = "周数", y = NULL, title = unique(name)) +
           # scale_x_date(date_breaks = "1 month", date_labels = "%b") +
           theme(
-            plot.title =  element_text(size = rel(1.3), hjust = 0.5),
+            plot.title =  element_text(face = "bold", size = rel(3), hjust = 0.5),
             axis.line = element_line(linetype = 1),
             legend.title = element_blank(),
             #panel.border = element_rect(linetype = 1, fill = NA),
             legend.position = "bottom",
-            legend.spacing.x = unit(0.1, 'cm'),
+            legend.spacing.x = unit(0.5, 'cm'),
             legend.spacing.y = unit(2, 'cm'),
+            legend.text = element_text(),
             # legend.box = "horizontal",
             # legend.box.background = element_rect(size = 1, colour = "black", fill = "white"),
-            legend.key = element_rect(size = 0.5, colour = "black", fill = "white"),
-            legend.key.size = unit(0.5, 'cm')
-          )) %>% list()), by = .(name)
+            legend.key = element_rect(size = 1, colour = "black", fill = "white"),
+            legend.key.size = unit(1, 'cm')
+          )) %>% list()), keyby = .(sub_title, name)
     ]
 
-eia_pic_weekly[, {
-  for (i in 1:.N) {
-    ggsave(plot = pic[[i]], str_c("./pic/", i, ".jpg"), device = "jpg", dpi = 300, width = 10, height = 5)
-  }
-}
-]
+# 拼图
+pic <- eia_pic_weekly[, wrap_plots(pic, ncol = 5, nrow = 6)]
+#ggsave("./pic/pic.png", device = "png", dpi = 500, width = 30, height = 30)
 
+# 3. 把表和图都拼起来
+eia <- tab|pic
+ggsave("./pic/eia.jpg", plot = eia, device = "jpg", dpi = 100, width = 65, height = 40, limitsize = F)
