@@ -62,42 +62,42 @@ sv(petroleum_updated_weekly, svname = petroleum_updated_weekly)
 # writexl::write_xlsx(name_list, "name_list.xlsx")
 
 # 3. 画图
-ld(petroleum_updated_weekly)
-eia_pic_weekly <- petroleum_updated_weekly[!is.na(area) & str_detect(name, "Crude|Finished Motor Gasoline|Jet|Distillate|Residual") & grandp_name == "Summary" & f == "W" & str_detect(name, "U.S.") & !str_detect(name, "ppm"), .SD
-    # ][!is.na(area) & str_detect(name, "Crude|Finished Motor Gasoline|Jet|Distillate|Residual") & grandp_name == "Summary" & f == "W" & !str_detect(name, "1A|1B|1C") & !str_detect(name, "ppm"), .SD
-    # ][year > 2011 & str_detect(name, "Finished Motor Gasoline") & str_detect(name, "PADD 1"), .SD
-    ][, ':='(y_max = max(value[year <= max(year-1) & year >= max(year - 5)]), y_min = min(value[year <= max(year-1) & year >= max(year - 5)])), by = .(week, name)
-  # ][, week := format(date, format = "%b-%d")
-    ][year >= max(year) - 4, .SD
-    ][, year := as.factor(year)
-    ][, .(pic = (ggplot(.SD) +
-          geom_line(size = 1, aes(x = week, y = value, colour = year)) +
-          geom_ribbon(aes(x = week, ymin = y_min, ymax = y_max, fill = "5 Year Range"), alpha = 0.3) + 
-          theme_grey() +
-          labs(x = "周数", y = unique(units), title = unique(name)) +
-          # scale_x_date(date_breaks = "1 month", date_labels = "%b") +
-          theme(
-            plot.title =  element_text(size = rel(1.3), hjust = 0.5),
-            axis.line = element_line(linetype = 1),
-            legend.title = element_blank(),
-            #panel.border = element_rect(linetype = 1, fill = NA),
-            legend.position = "bottom",
-            legend.spacing.x = unit(0.1, 'cm'),
-            legend.spacing.y = unit(2, 'cm'),
-            # legend.box = "horizontal",
-            # legend.box.background = element_rect(size = 1, colour = "black", fill = "white"),
-            legend.key = element_rect(size = 0.5, colour = "black", fill = "white"),
-            legend.key.size = unit(0.5, 'cm')
-          )) %>% list()), by = .(name)
-    ]
+# ld(petroleum_updated_weekly)
+# eia_pic_weekly <- petroleum_updated_weekly[!is.na(area) & str_detect(name, "Crude|Finished Motor Gasoline|Jet|Distillate|Residual") & grandp_name == "Summary" & f == "W" & str_detect(name, "U.S.") & !str_detect(name, "ppm"), .SD
+#     # ][!is.na(area) & str_detect(name, "Crude|Finished Motor Gasoline|Jet|Distillate|Residual") & grandp_name == "Summary" & f == "W" & !str_detect(name, "1A|1B|1C") & !str_detect(name, "ppm"), .SD
+#     # ][year > 2011 & str_detect(name, "Finished Motor Gasoline") & str_detect(name, "PADD 1"), .SD
+#     ][, ':='(y_max = max(value[year <= max(year-1) & year >= max(year - 5)]), y_min = min(value[year <= max(year-1) & year >= max(year - 5)])), by = .(week, name)
+#   # ][, week := format(date, format = "%b-%d")
+#     ][year >= max(year) - 4, .SD
+#     ][, year := as.factor(year)
+#     ][, .(pic = (ggplot(.SD) +
+#           geom_line(size = 1, aes(x = week, y = value, colour = year)) +
+#           geom_ribbon(aes(x = week, ymin = y_min, ymax = y_max, fill = "5 Year Range"), alpha = 0.3) + 
+#           theme_grey() +
+#           labs(x = "周数", y = unique(units), title = unique(name)) +
+#           # scale_x_date(date_breaks = "1 month", date_labels = "%b") +
+#           theme(
+#             plot.title =  element_text(size = rel(1.3), hjust = 0.5),
+#             axis.line = element_line(linetype = 1),
+#             legend.title = element_blank(),
+#             #panel.border = element_rect(linetype = 1, fill = NA),
+#             legend.position = "bottom",
+#             legend.spacing.x = unit(0.1, 'cm'),
+#             legend.spacing.y = unit(2, 'cm'),
+#             # legend.box = "horizontal",
+#             # legend.box.background = element_rect(size = 1, colour = "black", fill = "white"),
+#             legend.key = element_rect(size = 0.5, colour = "black", fill = "white"),
+#             legend.key.size = unit(0.5, 'cm')
+#           )) %>% list()), by = .(name)
+#     ]
 
-# ggsave(plot = eia_pic_weekly[["pic"]][[1]], "1.jpg", device = "jpg", dpi = 300, width = 10, height = 5)
-# ggsave(plot = eia_pic_weekly[["pic"]][[139]], "1.tiff", device = "tiff", dpi = 300, width = 10, height = 5)
+# # ggsave(plot = eia_pic_weekly[["pic"]][[1]], "1.jpg", device = "jpg", dpi = 300, width = 10, height = 5)
+# # ggsave(plot = eia_pic_weekly[["pic"]][[139]], "1.tiff", device = "tiff", dpi = 300, width = 10, height = 5)
 
-eia_pic_weekly[, {
-  for (i in 1:.N) {
-    ggsave(plot = pic[[i]], str_c("./pic/", as.character(name[[i]]), ".jpg"), device = "jpg", dpi = 300, width = 10, height = 5)
-  }
-}
-]
+# eia_pic_weekly[, {
+#   for (i in 1:.N) {
+#     ggsave(plot = pic[[i]], str_c("./pic/", as.character(name[[i]]), ".jpg"), device = "jpg", dpi = 300, width = 10, height = 5)
+#   }
+# }
+# ]
 

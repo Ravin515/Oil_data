@@ -10,17 +10,18 @@ library(bstfun)
 eia_updated <- fread("https://ir.eia.gov/wpsr/table9.csv")
 d <- colnames(eia_updated)[3] %>% as.Date("%m/%d/%y")
 eia_updated_tab_weekly <- eia_updated[!str_detect(STUB_2, "PADD")
-    ][str_detect(STUB_2, "Domestic Production|Percent Utilization|Finished Motor Gasoline|Distillate Fuel Oil|Kerosene-Type Jet Fuel|Residual Fuel Oil|Commercial|Cushing|SPR|Total Stocks|Crude Oil|Operable Capacity"), .SD
+    ][str_detect(STUB_2, "Domestic Production|Percent Utilization|Finished Motor Gasoline|Distillate Fuel Oil|Kerosene-Type Jet Fuel|Residual Fuel Oil|Commercial|Cushing|SPR|Total Stocks|Crude Oil|Operable Capacity|Total Motor Gasoline"), .SD
     ][
         (str_detect(STUB_1, "Crude")) |
         (str_detect(STUB_1, "Refiner Inputs")) |
         (str_detect(STUB_1, "Refiner and Blender") & !str_detect(STUB_2, "Adjustment|Commercial")) |
         (str_detect(STUB_1, "Stocks") & !str_detect(STUB_2, "Crude")) |
-        (str_detect(STUB_1, "Imports") & str_detect(STUB_2, "Finished Motor Gasoline|Distillate Fuel Oil|Kerosene-Type Jet Fuel|Residual Fuel Oil|Crude")) |
+        (str_detect(STUB_1, "Imports") & str_detect(STUB_2, "Total Motor Gasoline|Distillate Fuel Oil|Kerosene-Type Jet Fuel|Residual Fuel Oil|Crude")) |
         (str_detect(STUB_1, "Exports")) |
         (str_detect(STUB_1, "Supplied"))
     
     ][!str_detect(STUB_1, "Net Imports") & !str_detect(STUB_2, "Crude Oil Inputs")
+    ][!(str_detect(STUB_1, "Stock") & str_detect(STUB_2, "Finished Motor Gasoline"))
     ][, name := c(
             "美国原油产量（千桶/天）", 
             "美国炼厂运营炼能（千桶/天）", 
@@ -101,20 +102,23 @@ tab <- eia_updated_tab_weekly %>%
 # ggsave(plot = tab, "tab.jpg", device = "jpg")
     # gtsave("./pic/tab.png", expand = 30)         
 
-# 2. 25张季节性图
+# 2. 30张季节性图
 # U.S. Ending Stocks excluding SPR of Crude Oil, Weekly 为商业原油库存
 ld(petroleum_updated_weekly, force = T)
 index <- petroleum_updated_weekly[grandp_name == "Summary"& f == "W"
    ][!str_detect(name, "PADD")
-   ][str_detect(name, "Percent Utilization|Finished Motor Gasoline|Distillate|Kerosene-Type Jet Fuel|Residual Fuel Oil|Commercial|Cushing|SPR|Total Stocks|Crude Oil|Operable Capacity|Total Crude Oil and Petroleum Products"), .SD
+   ][str_detect(name, "Percent Utilization|Finished Motor Gasoline|Distillate|Kerosene-Type Jet Fuel|Residual Fuel Oil|Commercial|Cushing|SPR|Total Stocks|Crude Oil|Operable Capacity|Total Crude Oil and Petroleum Products|Total Gasoline"), .SD
    ][!str_detect(name, "Net Imports")
    ][!str_detect(name, "Refiner Net Input")
-   ][!str_detect(name, "Sulfur|Military|48|Alaska|Adjusted|Adjustment")
+   ][!str_detect(name, "Sulfur|Military|48|Alaska|Adjustment")
+   ][!str_detect(name, "Blender Net Production of Finished")
    ][!str_detect(name, "Exports of Crude Oil and Petroleum|Commercial Kerosene-Type")
    ][!str_detect(name, "Imports by SPR|Imports for SPR|Imports Excluding SPR")
    ][!str_detect(name, "Days")
    ][!str_detect(name, "Imports of Crude Oil and Petroleum Products")
    ][!str_detect(name, "Ending Stocks of Crude Oil, Weekly")
+   ][!str_detect(name, "Stocks of Finished")
+   ][!str_detect(name, "Imports of Finished")
    ][, .(name = unique(name))
    ][, cn_name := c(
             "美国原油产量（千桶/天）", 
@@ -167,7 +171,6 @@ eia_updated_pic_weekly <- eia_updated_pic_weekly[, .SD[1], keyby = .(name, date)
 
 # 批量画图
 eia_pic_weekly <- eia_updated_pic_weekly[, ':='(y_max = max(value[year <= max(year-1) & year >= max(year - 5)]), y_min = min(value[year <= max(year-1) & year >= max(year - 5)])), by = .(week, name)
-  # ][, week := format(date, format = "%b-%d")
     ][, sub_title := fcase(
       str_detect(name, "汽油"), "汽油",
       str_detect(name, "柴油"), "柴油",
@@ -190,12 +193,12 @@ eia_pic_weekly <- eia_updated_pic_weekly[, ':='(y_max = max(value[year <= max(ye
             #panel.border = element_rect(linetype = 1, fill = NA),
             legend.position = "bottom",
             legend.spacing.x = unit(0.5, 'cm'),
-            legend.spacing.y = unit(2, 'cm'),
+            legend.spacing.y = unit(0.5, 'cm'),
             legend.text = element_text(),
             # legend.box = "horizontal",
             # legend.box.background = element_rect(size = 1, colour = "black", fill = "white"),
-            legend.key = element_rect(size = 1, colour = "black", fill = "white"),
-            legend.key.size = unit(1, 'cm')
+            legend.key = element_rect(size = 0.5, colour = "black", fill = "white"),
+            legend.key.size = unit(0.5, 'cm')
           )) %>% list()), keyby = .(sub_title, name)
     ]
 
@@ -205,4 +208,4 @@ pic <- eia_pic_weekly[, wrap_plots(pic, ncol = 5, nrow = 6)]
 
 # 3. 把表和图都拼起来
 eia <- tab|pic
-ggsave("./pic/eia.jpg", plot = eia, device = "jpg", dpi = 100, width = 65, height = 40, limitsize = F)
+ggsave("./pic/eia.jpg", plot = eia, device = "jpg", dpi = 200, width = 65, height = 40, limitsize = F)
