@@ -3,7 +3,7 @@ library(gt)
 library(webshot2)
 library(dplyr)
 library(patchwork)
-library(gtsummary)
+# library(gtsummary)
 library(bstfun)
 
 # 1.周度变化表
@@ -85,7 +85,8 @@ pal <- function(x) {
   )
   fcase(x < 0, f_neg(x),
         x > 0, f_pos(x),
-        x == 0, f_zero(x))
+        x == 0, f_zero(x)
+        )
 }
 
 tab <- eia_updated_tab_weekly %>% 
